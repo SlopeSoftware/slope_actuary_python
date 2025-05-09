@@ -1,0 +1,44 @@
+{
+    "Asset MPF": {
+        "workbook": "27ZpHo1S2yxgZOYIUNgPly",
+        "element": "UYyRCGeP3x",
+        "filters": {
+            "Projection-ID": "Projection-ID"
+        }
+    },
+    "Asset Products": {
+        "workbook": "27ZpHo1S2yxgZOYIUNgPly",
+        "element": "Wdyy5U9p3k",
+        "filters": {
+            "Projection-ID": "Projection-ID"
+        }
+    },
+    "Liability Cash Flows": {
+        "workbook": "27ZpHo1S2yxgZOYIUNgPly",
+        "element": "-38h5woMKd",
+        "filters": {
+            "Projection-ID": "Projection-ID"
+        }
+    },
+    "Market Value Liability": {
+        "workbook": "27ZpHo1S2yxgZOYIUNgPly",
+        "element": "tHkOv-Sd-7",
+        "filters": {
+            "Projection-ID": "Projection-ID"
+        }
+    },
+    "Scenario Data": {
+        "workbook": "27ZpHo1S2yxgZOYIUNgPly",
+        "element": "QieVUTx0ze",
+        "filters": {
+            "Projection-ID": "Projection-ID"
+        }
+    },
+    "Solver Results": {
+        "workbook": "27ZpHo1S2yxgZOYIUNgPly",
+        "element": "tOgSiUT-Z8",
+        "filters": {
+            "Projection-ID": "Projection-ID"
+        }
+    }
+}

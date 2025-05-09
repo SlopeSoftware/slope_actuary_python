@@ -1,0 +1,31 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "SBA Solver Module",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "main",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/SBA_Solver",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/SBA_Solver"
+            },
+        },
+        {
+            "name": "PBR Solver Module",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "main",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/PBR_Solver",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/PBR_Solver"
+            },
+        }
+    ]
+}
