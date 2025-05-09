@@ -9,3 +9,5 @@ wheels/
 # Virtual environments
 .venv
 
+# API Keys - Local Only
+keys.py
