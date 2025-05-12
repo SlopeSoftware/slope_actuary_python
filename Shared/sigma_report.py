@@ -74,6 +74,7 @@ class SigmaReport:
         return self.__filename
 
     def retrieve(self, filter_values: dict) -> bool:
+        self.__data = None
         report_params = self.__get_report_params(filter_values)
 
         self.__filename = f'{self.working_directory}\\{self.workbook_id}_{self.element_id}.csv'

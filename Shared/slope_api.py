@@ -215,6 +215,11 @@ class SlopeApi:
         }
         logging.debug(f"Downloading report from workbook {workbook_id} with parameters: {report_params}")
         response = self.session.post(f"{self.api_url}/Reports/Workbooks/{workbook_id}", json=report_params)
+        if response.status_code == 400 and "Report took too long to generate" in response.text:
+            logging.debug("Report took too long to generate. Retrying download after 5 seconds.")
+            time.sleep(5)
+            response = self.session.post(f"{self.api_url}/Reports/Workbooks/{workbook_id}", json=report_params)
+        
         self.__check_response(response)
         logging.debug(f"Saving as '{filename}'.")
         file = open(filename, "wb")

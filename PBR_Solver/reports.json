@@ -1,0 +1,31 @@
+{
+    "Deterministic Reserves": {
+        "workbook": "1jN6NT3rNulFmyn1E9hCzz",
+        "element": "G2F2hTEBsS",
+        "filters": {
+            "Projection-ID": "Projection-ID"
+        }
+    },
+    "Liability Cash Flows": {
+        "workbook": "1jN6NT3rNulFmyn1E9hCzz",
+        "element": "Loshjk-N3d",
+        "filters": {
+            "Projection": "Projection-ID",
+            "Scenario": "Scenario-Number"
+        }
+    },
+    "Scenario Reserves": {
+        "workbook": "1jN6NT3rNulFmyn1E9hCzz",
+        "element": "ZxwwBfNsEv",
+        "filters": {
+            "Projection-ID": "Projection-ID"
+        }
+    },
+    "Starting Assets": {
+        "workbook": "1jN6NT3rNulFmyn1E9hCzz",
+        "element": "avCvrDgLq8",
+        "filters": {
+            "Projection-ID": "Projection-ID"
+        }
+    }
+}
