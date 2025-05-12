@@ -10,4 +10,5 @@ wheels/
 .venv
 
 # API Keys - Local Only
-keys.py
+*/keys.py
+Shared/keys.py
