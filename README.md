@@ -1,9 +1,9 @@
-# SLOPE Internal Projects Library
+# SLOPE Actuarial Scripts Library
 This Library contains sets of projects and workflows that have been built for various client needs.
 
 Each subfolder represents a separate project or workflow for a specific purpose.
 The `Shared` folder contains common utility classes or functions that are used by multiple projects.
-If sharing the projects with customers, you may need to include the `Shared` folder contents as well for the project to work.
+When using specific project folders, you may need to include the `Shared` folder contents as well for the project to work.
 
 ## VS Code Extensions
 This project was built to work with VS Code and utilizes the following extensions:
