@@ -54,11 +54,18 @@ class SbaSolver:
         table_structures = self.api.list_table_structures(self.model_id)
 
         self.starting_assets_table_id = next((table.get("id") for table in table_structures if table.get("name") == settings.starting_asset_table_name),None)
+        if self.starting_assets_table_id is None:
+            raise Exception(f"Starting Asset Table Structure with name of '{settings.starting_asset_table_name}' not found in model. Please check the model and try again.")
+        
         self.epl_table_id = next((table.get("id") for table in table_structures if table.get("name") == settings.epl_table_name), None)
+        if self.epl_table_id is None:
+            raise Exception(f"EPL Table Structure with name of '{settings.epl_table_name}' not found in model. Please check the model and try again.")
 
         # Get the Projection Template ID for the SBA Solver
         projection_templates = self.api.list_projection_templates(self.model_id)
         self.epl_projection_template_id = next((template.get("id") for template in projection_templates if template.get("name") == settings.sba_template_name), None)
+        if self.epl_projection_template_id is None:
+            raise Exception(f"SBA Projection Template with name of '{settings.sba_template_name}' not found in model. Please check the model and try again.")
 
     def calculate_bel_at_zero(self):
         logging.info(f"Starting SBA Solver for Time 0")
@@ -67,7 +74,7 @@ class SbaSolver:
         logging.info(f"Getting Liability Cash Flows from base Projection ID {self.base_projection_id}")
 
         base_report_params = {"Projection-ID": f"{self.base_projection_id}",
-                              "Scenario-ID": '1'}
+                              "Scenario": '1'}
 
         self.__create_liability_cash_flows(base_report_params)
 
@@ -89,12 +96,15 @@ class SbaSolver:
         logging.info(f"Getting Liability Cash Flows from base Projection ID {self.base_projection_id}")
 
         base_report_params = {"Projection-ID": f"{self.base_projection_id}",
-                              "Scenario-ID": '1'}
+                              "Scenario": '1'}
 
         self.__create_liability_cash_flows(base_report_params)
 
         for time_idx in time_indexes:
-            solve_params = SbaSolver.TimeSolveParams(time_idx)
+            if time_idx == 0:
+                solve_params = SbaSolver.TimeSolveParams(0, use_epl=settings.use_epl, generate_asset_files=False)
+            else:
+                solve_params = SbaSolver.TimeSolveParams(time_idx, use_epl=settings.use_epl)
             result = self.__solve_at_time(solve_params)
             self.final_bel.append({"Time": time_idx, "BEL": result["bel"], "ProjectionId": result["projectionId"], "Scenario": result["scenario"]})
 
@@ -270,8 +280,8 @@ class SbaSolver:
         logging.info(f"Solving for BEL at time {params.time_index}:")
 
         pivot_point_report_params = {"Projection-ID": f"{self.base_projection_id}",
-                                     "Scenario-ID": '1',
-                                     "Pivot-Time-Index": f"{params.time_index}"}
+                                     "Scenario": '1',
+                                     "Time": f"{params.time_index}"}
 
         # Get Market Value of Liabilities at this pivot point
         logging.info(f"Get starting market value liabilities at time {params.time_index}.")

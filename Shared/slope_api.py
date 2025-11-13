@@ -40,6 +40,36 @@ class SlopeApi:
             response.raise_for_status()
 
         logging.debug(f"API Response: {response}")
+    
+    def __paginate_get_request(self, url: str, limit: int = 200) -> list:
+        """Handle pagination for GET requests that return paginated results."""
+        self.__keep_alive()
+        all_items = []
+        offset = 0
+        
+        while True:
+            # Add pagination parameters to URL
+            separator = "&" if "?" in url else "?"
+            paginated_url = f"{url}{separator}Limit={limit}&Offset={offset}"
+            
+            response = self.session.get(paginated_url)
+            self.__check_response(response)
+            result = response.json()
+
+            if isinstance(result, dict) and "items" in result:
+                items = result["items"]
+                all_items.extend(items)
+                
+                # Check if there are more pages
+                if result.get("offset") is None:
+                    break
+                offset = result["offset"]
+            else:
+                # Assume it's a direct list
+                all_items.extend(result)
+                break
+                
+        return all_items
 
     # Authenticate the API using API Key and API Secret
     def authorize(self, key: str, secret: str):
@@ -205,38 +235,62 @@ class SlopeApi:
         self.__check_response(response)
         return response.json()["id"]
     
-    # Download results from a single element in a single workbook
-    def download_report(self, workbook_id, element_id, filename, format_type, parameters):
+    def generate_workbook_report(self, workbook_id: str, element_id: str, format_type: str, parameters: dict, row_limit: int = None, offset: int = None) -> dict:
         self.__keep_alive()
         report_params = {
-            "elementId": element_id,
             "reportFormat": format_type,
-            "parameters": parameters
+            "elementId": element_id,
         }
-        logging.debug(f"Downloading report from workbook {workbook_id} with parameters: {report_params}")
-        response = self.session.post(f"{self.api_url}/Reports/Workbooks/{workbook_id}", json=report_params)
-        if response.status_code == 400 and "Report took too long to generate" in response.text:
-            logging.debug("Report took too long to generate. Retrying download after 5 seconds.")
-            time.sleep(5)
-            response = self.session.post(f"{self.api_url}/Reports/Workbooks/{workbook_id}", json=report_params)
-        
+        if parameters:
+            report_params["parameters"] = parameters
+        if row_limit:
+            report_params["rowLimit"] = row_limit
+        if offset:
+            report_params["offset"] = offset
+            
+        logging.debug(f"Generating workbook report {workbook_id} with parameters: {report_params}")
+        response = self.session.post(f"{self.api_url}/Reports/Workbooks/{workbook_id}/Generate", json=report_params)
         self.__check_response(response)
+        return response.json()
+
+    def get_workbook_report_status(self, generation_id: str) -> dict:
+        self.__keep_alive()
+        response = self.session.get(f"{self.api_url}/Reports/Workbooks/Status/{generation_id}")
+        self.__check_response(response)
+        return response.json()
+    
+    def download_report(self, workbook_id: str, element_id: str, filename: str, format_type: str, parameters: dict, row_limit=None, offset=None, timeout=900):
+        self.__keep_alive()
+        report_response = self.generate_workbook_report(
+            workbook_id=workbook_id,
+            element_id=element_id,
+            format_type=format_type,
+            parameters=parameters,
+            row_limit=row_limit,
+            offset=offset
+        )
+        generation_id = report_response["generationId"]
+        logging.debug(f"Report generation started with ID: {generation_id}")
+
+        start_time = time.time()
+        while True:
+            status_response = self.get_workbook_report_status(generation_id)
+            if status_response["status"] == "Completed":
+                download_url = status_response["downloadUrl"]
+                break
+            elif status_response["status"] == "Failed":
+                raise Exception(f"Report generation failed: {status_response.get('message', 'Unknown error')}")
+            if time.time() - start_time > timeout:
+                raise TimeoutError(f"Report generation did not complete within {timeout} seconds.")
+            time.sleep(5)
+        logging.debug(f"Downloading report from {download_url}")
+        file_response = requests.get(download_url)
+        self.__check_response(file_response)
+        
         logging.debug(f"Saving as '{filename}'.")
         file = open(filename, "wb")
-        file.write(response.content)
+        file.write(file_response.content)
         file.close()
-
-    def download_and_load_report(self, workbook_id, element_id, filename, format_type, parameters) -> pd.DataFrame:
-        self.download_report(workbook_id, element_id, filename, format_type, parameters)
-        data = None
-        match format_type:
-            case "Csv":
-                data = pd.read_csv(filename)
-            case "Excel":
-                data = pd.read_excel(filename)
-            case _:
-                logging.error("Invalid report type requested.")
-        return data
 
     # Download the contents of a data table with given Data Table ID
     # Returns an pandas DataFrame object with the contents of the table

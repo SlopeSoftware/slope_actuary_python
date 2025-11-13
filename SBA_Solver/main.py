@@ -11,7 +11,7 @@ from Shared.sigma_report import SigmaReportParams
 
 # SBA Solver parameters
 # The ID of the base liability cash flow projection
-base_projection_id = 59776
+base_projection_id = 134180
 
 # List of the pivot points at which you want to run the solver. It will solve for BEL at ech of these time points in the above projection
 solver_time_points = [0]
@@ -20,7 +20,7 @@ solver_time_points = [0]
 
 def setup_logging():
     # Change this to appropriate level for your run
-    logging_level = logging.INFO
+    logging_level = logging.DEBUG
 
     # Setup Logger
     log_formatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")

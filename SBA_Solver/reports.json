@@ -1,41 +1,51 @@
 {
     "Asset MPF": {
-        "workbook": "27ZpHo1S2yxgZOYIUNgPly",
+        "workbook": "3X1tNrMjoiEaTITdLOdBvl",
         "element": "UYyRCGeP3x",
         "filters": {
-            "Projection-ID": "Projection-ID"
+            "Projection-ID": "Projection-ID",
+            "Scenario": "Scenario-Number",
+            "Time": "Pivot-Time-Index"
         }
     },
     "Asset Products": {
-        "workbook": "27ZpHo1S2yxgZOYIUNgPly",
+        "workbook": "3X1tNrMjoiEaTITdLOdBvl",
         "element": "Wdyy5U9p3k",
         "filters": {
-            "Projection-ID": "Projection-ID"
+            "Projection-ID": "Projection-ID",
+            "Scenario": "Scenario-Number",
+            "Time": "Pivot-Time-Index"
         }
     },
     "Liability Cash Flows": {
-        "workbook": "27ZpHo1S2yxgZOYIUNgPly",
+        "workbook": "3X1tNrMjoiEaTITdLOdBvl",
         "element": "-38h5woMKd",
         "filters": {
-            "Projection-ID": "Projection-ID"
+            "Projection-ID": "Projection-ID",
+            "Scenario": "Scenario-Number",
+            "Time": "Pivot-Time-Index"
         }
     },
     "Market Value Liability": {
-        "workbook": "27ZpHo1S2yxgZOYIUNgPly",
+        "workbook": "3X1tNrMjoiEaTITdLOdBvl",
         "element": "tHkOv-Sd-7",
         "filters": {
-            "Projection-ID": "Projection-ID"
+            "Projection-ID": "Projection-ID",
+            "Scenario": "Scenario-Number",
+            "Time": "Pivot-Time-Index"
         }
     },
     "Scenario Data": {
-        "workbook": "27ZpHo1S2yxgZOYIUNgPly",
+        "workbook": "3X1tNrMjoiEaTITdLOdBvl",
         "element": "QieVUTx0ze",
         "filters": {
-            "Projection-ID": "Projection-ID"
+            "Projection-ID": "Projection-ID",
+            "Scenario": "Scenario-Number",
+            "Time": "Pivot-Time-Index"
         }
     },
     "Solver Results": {
-        "workbook": "27ZpHo1S2yxgZOYIUNgPly",
+        "workbook": "3X1tNrMjoiEaTITdLOdBvl",
         "element": "tOgSiUT-Z8",
         "filters": {
             "Projection-ID": "Projection-ID"
