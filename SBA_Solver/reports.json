@@ -3,14 +3,17 @@
         "workbook": "3X1tNrMjoiEaTITdLOdBvl",
         "element": "UYyRCGeP3x",
         "filters": {
-            "Projection-ID": "Projection-ID"
+            "Projection-ID": "Projection-ID",
+            "Pivot-Time-Index": "Pivot-Time-Index",
+            "Product-Name": "Product-Name"
         }
     },
     "Asset Products": {
         "workbook": "3X1tNrMjoiEaTITdLOdBvl",
         "element": "Wdyy5U9p3k",
         "filters": {
-            "Projection-ID": "Projection-ID"
+            "Projection-ID": "Projection-ID",
+            "Pivot-Time-Index": "Pivot-Time-Index"
         }
     },
     "Liability Cash Flows": {
@@ -24,18 +27,20 @@
         "workbook": "3X1tNrMjoiEaTITdLOdBvl",
         "element": "tHkOv-Sd-7",
         "filters": {
-            "Projection-ID": "Projection-ID"
+            "Projection-ID": "Projection-ID",
+            "Pivot-Time-Index": "Pivot-Time-Index"
         }
     },
     "Scenario Data": {
         "workbook": "3X1tNrMjoiEaTITdLOdBvl",
         "element": "QieVUTx0ze",
         "filters": {
-            "Projection-ID": "Projection-ID"
+            "Projection-ID": "Projection-ID",
+            "Pivot-Time-Index": "Pivot-Time-Index"
         }
     },
     "Solver Results": {
-        "workbook": "27ZpHo1S2yxgZOYIUNgPly",
+        "workbook": "3X1tNrMjoiEaTITdLOdBvl",
         "element": "tOgSiUT-Z8",
         "filters": {
             "Projection-ID": "Projection-ID"
