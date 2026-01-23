@@ -18,6 +18,8 @@ class SbaSolver:
 
     solver_folder = ""
     slope_file_path = ""
+    __asset_market_value = 0
+    __base_projection = {}
     __last_cf_time = 0
     __max_iterations = settings.solver_max_iterations
     __tolerance = settings.solver_final_asset_tolerance
@@ -39,16 +41,16 @@ class SbaSolver:
             os.makedirs(self.solver_folder)
         self.slope_file_path = f"SBA Solver/{projection_id}"
         self.max_error = "Unknown"
+        pd.options.display.float_format = '{:,.2f}'.format
 
         # Get the base projection that was run
-        projection = self.api.get_projection_details(self.base_projection_id)
-        pd.options.display.float_format = '{:,.2f}'.format
-        if projection.get("status") not in ["Completed", "CompletedWithErrors"]:
+        self.__base_projection = self.api.get_projection_details(self.base_projection_id)
+        if self.__base_projection.get("status") not in ["Completed", "CompletedWithErrors"]:
             logging.info("Main Projection must be completed before the solver can be run")
             raise Exception(f"Projection ID {projection_id} has not completed running.")
 
         # Get the model this was run on
-        self.model_id = projection.get("model").get("id")
+        self.model_id = self.__base_projection.get("model").get("id")
 
         # Get the Table IDs of the inputs needed from this model
         table_structures = self.api.list_table_structures(self.model_id)
@@ -112,6 +114,20 @@ class SbaSolver:
         products_report = SigmaReport(self.api, self.reports["Asset Products"])
         products_report.retrieve(report_params)
         products = products_report.get_data()
+        self.__asset_market_value = products['Market Value at Pivot Time'].sum()
+
+        if time_index == 0:
+            # For time 0, we can just use the existing asset MPFs from the base projection
+            base_products = self.__base_projection.get("portfolios")[0].get("products")
+
+            # Create a list of asset objects from the base projection products
+            assets = []
+            for product in base_products:
+                if product.get("productType") == "Asset":
+                    assets.append({"productName": product.get("name"),
+                               "modelPointFile": product.get("modelPointFile")})
+
+            return assets
 
         assets = []
         report = SigmaReport(self.api, self.reports["Asset MPF"])
@@ -293,6 +309,7 @@ class SbaSolver:
                 "tableStructureName": "EPL Inputs",
                 "dataTableId": self.liability_cashflows_table_id
             }],
+            "virtualFolders": [settings.virtual_folder_name]
         }
 
         if params.use_epl:
@@ -316,19 +333,22 @@ class SbaSolver:
             }]
 
         # Start Initial Guesses for solver
+        starting_guess = market_value_liabilities if market_value_liabilities > 0 else self.__asset_market_value
+        if starting_guess <= 0:
+            starting_guess = 10000000  # If both MVL and Asset MV are 0 or negative, just start at 10 million
         solver_projections = []
         guess_num = 1
 
-        # Low - 90% of MVL
-        starting_assets = [market_value_liabilities * 0.95] * 10
+        # Low - 90% of starting guess
+        starting_assets = [starting_guess * 0.95] * 10
         solver_projections.append(self.__start_run(starting_assets, params.time_index, solver_projection_parameters, guess_num, params.use_epl))
         guess_num += 1
-        # Mid - 99.5% of MVL
-        starting_assets = [market_value_liabilities * 0.995] * 10
+        # Mid - 99.5% of starting guess
+        starting_assets = [starting_guess * 0.995] * 10
         solver_projections.append(self.__start_run(starting_assets, params.time_index, solver_projection_parameters, guess_num, params.use_epl))
         guess_num += 1
         # High - 110% of MVL
-        starting_assets = [market_value_liabilities * 1.1] * 10
+        starting_assets = [starting_guess * 1.1] * 10
         solver_projections.append(self.__start_run(starting_assets, params.time_index, solver_projection_parameters, guess_num, params.use_epl))
         guess_num += 1
 
@@ -385,8 +405,9 @@ class SbaSolver:
     def __start_run(self, starting_assets: list[float], time_index, projection_params, guess_num: int, use_epl: bool) -> int:
         # Write new starting asset values to a table
         df = pd.DataFrame(starting_assets)
-        df = df.rename(columns={df.columns[0]: "Target Value"})
+        df = df.rename(columns={df.columns[0]: "Scaling Target"})
         df['Scenario #'] = range(len(df))
+        df['Scaling Factor'] = None
         starting_assets_file = self.solver_folder + "sba_assets.csv"
         df.to_csv(starting_assets_file, index=False)
         logging.info(f"Starting run for BEL solve:")
