@@ -12,7 +12,7 @@ import os
 import json
 
 # Projection ID to Solve
-projection_id = 117358  # Replace with your actual projection ID
+projection_id = 162261  # Replace with your actual projection ID
 
 # Change this to appropriate level for your run
 logging_level = logging.INFO
@@ -55,11 +55,16 @@ if __name__ == '__main__':
     )
 
     # Only use restart params if the you want to start midway through the solver routine. Otherwise, don't include this.
-    restart_params = VM20RestartParams(
-        starting_assets=66000000.0,
-        sample_scenarios=[56, 147, 50, 67, 64, 65, 41, 110],
-        epl_table_id=1251682
-    )
+    restart_params = None
+    # restart_params = VM20RestartParams(
+    #    starting_assets=1634355.36,
+    #    sample_scenarios=None,
+    #    epl_table_id=None,
+    #    initial_guesses=None
+    # )
+    #     sample_scenarios=[56, 147, 50, 67, 64, 65, 41, 110],
+    #     epl_table_id=1251682
+    # )
     #    initial_guesses=GuessIteration(
     #        prior_guess=66000000.0, 
     #        prior_result=55623470.27275342, 

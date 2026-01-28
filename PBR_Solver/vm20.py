@@ -23,6 +23,7 @@ class VM20:
     __epl_table_structure_id: int = None
     __pbr_projection_template_id: int = None
     __starting_assets_table_structure_id: int = None
+    __solver_steps: list[dict] = None
 
     def __init__(self, params: VM20Params):
         self.api = SlopeApi()
@@ -109,12 +110,20 @@ class VM20:
             self.api.wait_for_completion(stochastic_projection_id)
             stochastic_reserve = self.__get_stochastic_reserve(stochastic_projection_id, full_scenario_set=True)
             diff = stochastic_reserve - solver_assets
+            diff_pct = "{:.2%}".format(diff/stochastic_reserve)
+            self.__solver_steps.append({"Iteration": "Final Full Stochastic Run",
+                                        "Guess": solver_assets,
+                                        "Difference": diff,
+                                        "DifferencePct": diff_pct})
             if abs(diff) <= self.asset_collar_tolerance * solver_assets:
-                diff_pct = "{:.2%}".format(diff/stochastic_reserve)
-                logging.info(f"Asset Collar Solver: Tolerance met with full stochastic set. Final Reserve: {stochastic_reserve} Final Collar Diff: {diff} ({diff_pct}).")
-                return solver_assets, stochastic_projection_id
-            
-            logging.info("Asset Collar Solver: Tolerance met using EPL Cash flows, but not with full rerun.")
+                logging.info(f"Asset Collar Solver: Tolerance met with full stochastic set.")
+            else:
+                logging.info(f"Asset Collar Solver: Tolerance not met with full rerun.")
+
+            for step in self.__solver_steps:
+                logging.info(f"Iteration: {step['Iteration']}, Guess: {step['Guess']}, Difference: {step['Difference']}, DifferencePct: {step['DifferencePct']}")
+
+            return solver_assets, stochastic_projection_id
             
         except Exception as e:
             logging.error(f"Error in Asset Collar Solver: {e}")
@@ -186,10 +195,8 @@ class VM20:
 
     def __get_liability_cashflows(self, projection_id: int, sample_scenarios: list[int]) -> str:
         report = SigmaReport(self.api, self.params.reports.get("Liability Cash Flows"))
-        batches = [{"Projection": str(projection_id), "Scenario": str(scenario)} for scenario in sample_scenarios]
-        report.retrieve_batched(batches)
+        report.retrieve({"Projection-ID": str(projection_id), "Scenario": ",".join(map(str, sample_scenarios))})
 
-    
         # Read cash flows into a dataframe
         epl_data = report.get_data()
 
@@ -215,7 +222,7 @@ class VM20:
         epl_data.to_csv(report.get_filename(), index=False)
 
         # Upload the EPL cash flows to SLOPE
-        logging.info("Create EPL table for liability cash flows for BEL runs")
+        logging.info("Create EPL table for liability cash flows for VM-20 Solver runs")
         epl_table_id = self.api.create_or_update_data_table(report.get_filename(), {
             "tableStructureId": self.__epl_table_structure_id,
             "name": f"{projection_id} Cash Flows",
@@ -300,10 +307,15 @@ class VM20:
                 "startDate": self.base_projection_details['startDate'],
                 "periodInMonths": self.base_projection_details['periodInMonths'],
                 "scenarioTableId": self.base_projection_details['scenarioTableId'],
-                "scenarioSubset": ",".join(map(str, scenarios_to_run))
+                "scenarioSubset": ",".join(map(str, scenarios_to_run)),
+                "virtualFolders": [self.params.projection_virtual_folder]
             }
 
         try:
+            self.__solver_steps = [{"Iteration": 0,
+                             "Guess": last_guess,
+                             "Difference": last_diff,
+                             "DifferencePct": last_diff_pct}]
             for i in range(self.params.max_iterations):
                 projection_id = self.api.create_projection_from_template(self.__pbr_projection_template_id, f"VM-20 Asset Collar Solver - Projection {sr_projection_id} Iteration {i+1}")
                 # Update the projection params with the guess assets
@@ -329,6 +341,11 @@ class VM20:
                 stochastic_reserve = self.__get_stochastic_reserve(projection_id, full_scenario_set=False)
                 current_diff = stochastic_reserve - current_guess
                 current_diff_pct = "{:.2%}".format(current_diff/current_guess)
+
+                self.__solver_steps.append({"Iteration": i+1,
+                                     "Guess": current_guess,
+                                     "Difference": current_diff,
+                                     "DifferencePct": current_diff_pct})
 
                 if abs(current_diff) <= self.asset_collar_tolerance * current_guess:
                     # If the difference is within the tolerance, return the current guess

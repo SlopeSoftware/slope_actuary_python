@@ -13,6 +13,7 @@ class VM20Params:
     pbr_projection_template_name: str
     reports: dict[str, SigmaReportParams] = None
     working_directory: str = r'c:\Slope API\VM20'
+    projection_virtual_folder = "VM-20 Solver"
     epl_table_structure_name: str = "EPL Inputs"
     starting_assets_table_structure_name: str = "Initial Asset Scaling"
 
