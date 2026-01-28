@@ -21,7 +21,8 @@ sba_scenario_generator = solver_folder + "SBA Scenario Generator.xlsx"
 sba_template_name = "SBA Solver Template"                    # The name of the projection template to be used within the solver
 starting_asset_table_name = "Initial Asset Scaling"          # The name of the starting assets table
 epl_table_name = "EPL Inputs"                                # The name of the EPL Input Table
+virtual_folder_name = "SBA Solver"                           # The name of the virtual folder in SLOPE to store projections in Slope
 
-solver_final_asset_tolerance = 10000        # tolerance for remaining assets for the BEL solve - Higher tolerances will converge faster
-solver_max_iterations = 5                   # The maximum number of attempts to solve for BEL. If max iterations is exceeded, the last closes guess outside the tolerance will be used
+solver_final_asset_tolerance = 5000000        # tolerance for remaining assets for the BEL solve - Higher tolerances will converge faster
+solver_max_iterations = 4                   # The maximum number of attempts to solve for BEL. If max iterations is exceeded, the last closes guess outside the tolerance will be used
 next_guess_range = 0.20                     # Check a 20% weighted average range around the last guess
