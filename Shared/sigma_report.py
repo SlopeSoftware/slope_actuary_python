@@ -93,6 +93,8 @@ class SigmaReport:
 
         unique_id = uuid.uuid4().hex
 
+        self.__data = None  # Clear any existing data
+
         if filename is None:
             self.__filename = f'{self.working_directory}\\{self.workbook_id}_{self.element_id}_{unique_id}.csv'
         else:
